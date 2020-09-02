@@ -3,45 +3,40 @@ const { Post, User , Vote, Comment} = require("../../models");
 const sequelize = require("../../config/connection");
 
 
-//// get all users
-router.get("/", (req, res) => {
+
+// get all users
+router.get('/', (req, res) => {
   Post.findAll({
+    order: [['created_at', 'DESC']],
     attributes: [
-      "id",
-      "post_url",
-      "title",
-      "created_at",
-      [
-        sequelize.literal(
-          "(SELECT COUNT(*) FROM vote WHERE post.id = vote.post_id)"
-        ),
-        "vote_count",
-      ],
+      'id',
+      'post_url',
+      'title',
+      'created_at',
+      [sequelize.literal('(SELECT COUNT(*) FROM vote WHERE post.id = vote.post_id)'), 'vote_count']
     ],
     include: [
       {
         model: Comment,
-        attributes: ["id", "comment_text", "post_id", "user_id", "created_at"],
+        attributes: ['id', 'comment_text', 'post_id', 'user_id', 'created_at'],
         include: {
           model: User,
-          attributes: ["username"],
-        },
+          attributes: ['username']
+        }
       },
       {
         model: User,
-        attributes: ["username"],
-      },
-    ],
+        attributes: ['username']
+      }
+    ]
   })
-    .then((dbPostData) => {
-      // pass a single post object into the homepage template
-      res.render("homepage", dbPostData[0]);
-    })
-    .catch((err) => {
+    .then(dbPostData => res.json(dbPostData))
+    .catch(err => {
       console.log(err);
       res.status(500).json(err);
     });
 });
+
 
 
 // GET /api/users/1
