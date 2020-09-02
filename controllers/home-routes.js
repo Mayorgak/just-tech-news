@@ -43,8 +43,17 @@ router.get("/", (req, res) => {
 });
 
 router.get("/", (req, res) => {
+  console.log(req.session);
   const posts = dbPostData.map((post) => post.get({ plain: true }));
   res.render("homepage", { posts });
+});
+
+router.get("/login", (req, res) => {
+  if (req.session.loggedIn) {
+    res.redirect("/");
+    return;
+  }
+  res.render("login");
 });
 
 module.exports = router;
